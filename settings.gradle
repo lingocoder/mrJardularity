@@ -1,0 +1,4 @@
+/*enableFeaturePreview('STABLE_PUBLISHING')*/
+
+rootProject.name = 'j9dularity'
+

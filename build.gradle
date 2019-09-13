@@ -1,0 +1,152 @@
+plugins {
+    id 'com.gradle.build-scan' version '2.2.1'
+    id 'eclipse'
+    id 'java-gradle-plugin'
+    id 'maven-publish' // used for publishing to local maven repository
+    id 'com.gradle.plugin-publish' version '0.10.1'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'com.github.ben-manes.versions' version '0.21.0'
+    id 'com.lingocoder.mrjar' version '0.0.10'
+}
+
+mrjar{
+
+    releases = [JavaVersion.VERSION_1_9,JavaVersion.VERSION_12]
+
+    packages =['org.javamodularity.moduleplugin.extensions', 'org.javamodularity.moduleplugin.internal', 'org.javamodularity.moduleplugin.tasks']
+    
+    moduleName = 'java9.modularity'
+}
+
+buildScan {
+    termsOfServiceUrl   = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
+
+group 'org.javamodularity'
+version '1.5.1-mrjar'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    plugin.description = "Plugin's dependencies"
+    compile.extendsFrom plugin
+}
+
+dependencies {
+    implementation gradleApi()
+    plugin('com.github.javaparser:javaparser-symbol-solver-core:3.13.5'){
+        exclude module: 'jsr305'
+        exclude module: 'failureaccess'
+        exclude module: 'javaparser-symbol-solver-model'
+    }
+    plugin 'com.github.javaparser:javaparser-core:3.13.5'
+
+    testImplementation gradleTestKit()
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.4.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
+}
+
+shadowJar {
+    configurations = [project.configurations.plugin]
+    classifier = null
+    dependencies {
+        include(dependency('com.github.javaparser:javaparser-symbol-solver-core'))
+        include(dependency('com.github.javaparser:javaparser-symbol-solver-logic'))
+        include(dependency('com.github.javaparser:javaparser-symbol-solver-model'))
+        include(dependency('com.github.javaparser:javaparser-core'))
+    }
+    relocate 'com.github.javaparser', 'org.javamodularity.moduleplugin.shadow.javaparser'
+}
+
+jar.enabled = false
+jar.dependsOn shadowJar
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+        stackTraceFilters = []
+    }
+}
+
+task createClasspathManifest {
+    File outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join('\n')
+    }
+}
+
+// Add the classpath file to the test runtime classpath
+dependencies {
+    testRuntimeOnly files(createClasspathManifest)
+}
+
+gradlePlugin {
+    plugins {
+        j9dularity {
+            id = 'org.javamodularity.moduleplugin'
+            displayName = 'Java Modularity Gradle Plugin'
+            description = 'Plugin that makes it easy to work with the Java Platform Module System'
+            implementationClass = 'org.javamodularity.moduleplugin.ModuleSystemPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/java9-modularity/gradle-modules-plugin'
+    vcsUrl = 'https://github.com/java9-modularity/gradle-modules-plugin'
+    tags = ['java', 'modules', 'jpms', 'modularity']
+}
+
+publishing { // used for publishing to local maven repository
+    repositories {
+        maven {
+            url = uri( "./consuming/maven-repo" )
+        }
+    }
+}
+
+
+task printCompileJava{
+
+    doLast{
+        println ":compileJava's sourceCompatibility: '" + project['tasks']['compileJava']['sourceCompatibility'] + "'"
+        println ":compileTestJava's sourceCompatibility: '" + project['tasks']['compileTestJava']['sourceCompatibility'] + "'"
+        println ":test's javaVersion: '" + project['tasks']['test']/*.properties.each{ println it }*/['javaVersion'] + "'"
+        println ":test's description: '" + project['tasks']['test']['description'] + "'"
+        println ":test's executable: '" + project['tasks']['test']['executable'] + "'"
+        println ":test's jvmArgs: '" + project['tasks']['test']['jvmArgs'] + "'"
+        /* JavaVersion jvmArgs executable  */
+    }
+
+}
+
+task printCompileJava9{
+
+    doLast{
+        println ":compileJava9Java's sourceCompatibility: '" + project['tasks']['compileJava9Java']['sourceCompatibility'] + "'"
+        println ":compileTestJava9Java's sourceCompatibility: '" + project['tasks']['compileTestJava9Java']['sourceCompatibility'] + "'"
+        println ":testJava9's javaVersion: '" + project['tasks']['testJava9']/*.properties.each{ println it }*/['javaVersion'] + "'"
+        println ":testJava9's description: '" + project['tasks']['testJava9']['description'] + "'"
+        println ":testJava9's executable: '" + project['tasks']['testJava9']['executable'] + "'"
+        print ":testJava9's classpath: "
+        project.tasks[ 'testJava9' ].classpath.each { p -> println "\n    " + p.absolutePath }
+        println ":testJava9's jvmArgs: '" + project['tasks']['testJava9']['jvmArgs'] + "'"
+        /* JavaVersion jvmArgs executable  */
+        print ":compileTestJava9Java's classpath: "
+        project.tasks[ 'compileTestJava9Java' ].classpath.each { p -> println "\n    " + p.absolutePath }
+    }
+}

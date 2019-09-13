@@ -1,0 +1,53 @@
+# Folders
+.gradle/
+.idea/
+.settings/
+build/
+out/
+userHome/
+
+# Files
+.classpath
+.project
+*.iml
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# JEnv Java Version
+.java-version
+
+# Gradle wrapper in test projects
+/test-project*/gradlew*
+/test-project*/gradle/wrapper/*
+
+# lingocoder's
+.vscode
+**/logs
+**/technotes
+*~*
+*.jav
+*.keep
+*.original
+.gradle
+build
+.idea
+*.iml
+*.ipr
+*.iws
+caches
+daemon
+native
+out
+notifications
+build-scan-data
+**/plugin-under-test-metadata.properties
+**/log4j.properties
+**/logback.xml
+*.keep.*
+*.ser
+**/*ScratchPad*.*
+**/*.doc
+**/*.odt
+**/*.pdf
+consuming/
