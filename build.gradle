@@ -6,12 +6,10 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.10.1'
     id 'com.github.johnrengelman.shadow' version '5.0.0'
     id 'com.github.ben-manes.versions' version '0.21.0'
-    id 'com.lingocoder.mrjar' version '0.0.11'
+    id 'com.lingocoder.mrjar' version '0.0.12'
 }
 
 mrjar{
-
-    releases = [JavaVersion.VERSION_12]
 
     packages =['org.javamodularity.moduleplugin.extensions', 'org.javamodularity.moduleplugin.internal', 'org.javamodularity.moduleplugin.tasks']
     
