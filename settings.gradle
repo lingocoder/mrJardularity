@@ -1,4 +1,17 @@
 /*enableFeaturePreview('STABLE_PUBLISHING')*/
+/*
+pluginManagement{
 
+    repositories{
+        maven{
+            url 'file:///z:/staging/consuming/maven-repo'
+        }
+        gradlePluginPortal( )
+        mavenLocal( )
+    }
+}*/
+plugins {
+    id "com.gradle.enterprise" version "3.0"
+}
 rootProject.name = 'j9dularity'
 

@@ -1,19 +1,21 @@
 plugins {
-    id 'com.gradle.build-scan' version '2.2.1'
     id 'eclipse'
     id 'java-gradle-plugin'
     id 'maven-publish' // used for publishing to local maven repository
     id 'com.gradle.plugin-publish' version '0.10.1'
     id 'com.github.johnrengelman.shadow' version '5.0.0'
     id 'com.github.ben-manes.versions' version '0.21.0'
-    id 'com.lingocoder.mrjar' version '0.0.13'
+    id 'com.lingocoder.mrjar' version '0.0.16'
 }
 
 mrjar{
 
-    packages =['org.javamodularity.moduleplugin.extensions', 'org.javamodularity.moduleplugin.internal', 'org.javamodularity.moduleplugin.tasks']
+    packages =['org.javamodularity.moduleplugin', 'org.javamodularity.moduleplugin.extensions', 'org.javamodularity.moduleplugin.internal', 'org.javamodularity.moduleplugin.tasks']
     
     moduleName = 'java9.modularity'
+
+    /* exclude these artifact ids from the module path */
+    excludes = ['guava', 'javaparser-core']
 }
 
 buildScan {
@@ -28,7 +30,7 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 configurations {
@@ -46,9 +48,13 @@ dependencies {
     plugin 'com.github.javaparser:javaparser-core:3.13.5'
 
     testImplementation gradleTestKit()
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.4.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.5.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    // Force Gradle to load the JUnit Platform Launcher from the module-path, as
+    // configured in buildSrc/.../ModulePlugin.java -- see SKARA-69 for details.
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.5.2'
 }
 
 shadowJar {
